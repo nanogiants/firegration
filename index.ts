@@ -2,6 +2,7 @@ import { program } from "commander";
 import * as fs from "fs/promises";
 import * as admin from "firebase-admin";
 import { getFirestore } from "firebase-admin/firestore";
+import * as path from "path";
 
 admin.initializeApp();
 
@@ -13,10 +14,20 @@ program.parse();
 const { migrations, databaseId } = program.opts();
 
 async function main() {
-  const files = await fs.readdir(migrations);
+  let migrationsPath = migrations;
+  if (!path.isAbsolute(migrations)) {
+    migrationsPath = path.join(process.cwd(), migrations);
+  }
+  console.info(`Migrations path: ${migrationsPath}`);
+
+  const files = await fs.readdir(migrationsPath);
   ensureValidMigrationFiles(files);
 
   const sortedFilesByVersion = getSortedMigrationFilesByVersion(files);
+  if (sortedFilesByVersion.length === 0) {
+    console.info("No migrations to run");
+    return;
+  }
   const firestore = getFirestore(databaseId);
   const migrationsCollection = firestore.collection("firemigrations");
   const versions = await migrationsCollection.listDocuments();
