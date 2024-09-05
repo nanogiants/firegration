@@ -15,8 +15,14 @@ program.parse();
 
 const { migrations, databaseId } = program.opts();
 
+const MIGRATIONS_COLLECTION_NAME = "firegration";
+
 async function main() {
-  register({});
+  register({
+    compilerOptions: {
+      noImplicitAny: false,
+    },
+  });
   let migrationsPath = migrations;
   if (!path.isAbsolute(migrations)) {
     migrationsPath = path.join(process.cwd(), migrations);
@@ -32,7 +38,7 @@ async function main() {
     return;
   }
   const firestore = getFirestore(databaseId);
-  const migrationsCollection = firestore.collection("firemigrations");
+  const migrationsCollection = firestore.collection(MIGRATIONS_COLLECTION_NAME);
   const versions = await migrationsCollection.listDocuments();
   let currentVersion = null;
   if (versions.length > 0) {

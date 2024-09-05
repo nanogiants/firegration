@@ -5,7 +5,7 @@ Firegrations is a simple migration tool for Firestore. It allows you to define y
 ## Installation
 
 ```sh
-npm install firegration
+npm install https://github.com/nanogiants/firegration.git
 ```
 
 You also need Firebase Credentials to run the migrations. Simply set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable when running the migrations.
@@ -26,7 +26,7 @@ export default async function ({ firestore }: MigrationParameters) {
 }
 ```
 
-````ts
+```ts
 // migrations/v1.0.1__migration2.ts
 import { MigrationParameters } from "firegration";
 export async function migrate({ firestore }: MigrationParameters) {
@@ -49,4 +49,4 @@ Options:
 
 ```sh
 GOOGLE_APPLICATION_CREDENTIALS="service_account.json" npx firegration --migrations=./migrations --databaseId=development
-````
+```

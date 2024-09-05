@@ -4,16 +4,18 @@
   "bin": "./dist/index.js",
   "types": "firegration.d.ts",
   "scripts": {
-    "build": "tsc",
-    "preinstall": "npm run build"
+    "build": "rimraf dist && tsc"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "ts-node": "^10.9.2",
-    "typescript": "^5.5.4",
     "commander": "^12.1.0",
-    "firebase-admin": "^12.4.0"
+    "firebase-admin": "^12.4.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
   }
 }

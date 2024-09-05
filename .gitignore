@@ -69,5 +69,3 @@ node_modules/
 .dataconnect
 
 service_account.json
-
-dist
