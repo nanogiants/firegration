@@ -1,9 +1,11 @@
+#!/usr/bin/env node
 import { program } from "commander";
 import * as fs from "fs/promises";
 import * as admin from "firebase-admin";
-import { getFirestore } from "firebase-admin/firestore";
+import { getFirestore, Firestore } from "firebase-admin/firestore";
 import * as path from "path";
-
+import { register } from "ts-node";
+import { MigrationFile } from "./firegration";
 admin.initializeApp();
 
 program.requiredOption("--migrations <path>", "Path to migrations folder");
@@ -14,6 +16,7 @@ program.parse();
 const { migrations, databaseId } = program.opts();
 
 async function main() {
+  register({});
   let migrationsPath = migrations;
   if (!path.isAbsolute(migrations)) {
     migrationsPath = path.join(process.cwd(), migrations);
@@ -53,12 +56,17 @@ async function main() {
       continue;
     }
 
-    const migrationFilePath = `${migrations}/${file}`;
+    const migrationFilePath = `${migrationsPath}/${file}`;
     console.info(`Running migration: ${migrationFilePath}`);
 
-    const { migrate } = await import(migrationFilePath);
+    const migrationFile: MigrationFile = await import(migrationFilePath);
 
-    await migrate(firestore);
+    if (!migrationFile.default && !migrationFile.migrate) {
+      throw new Error(
+        `Invalid migration file: ${file}. No default or migrate export found`
+      );
+    }
+    await (migrationFile.default ?? migrationFile.migrate)({ firestore });
     await migrationsCollection.doc(migrationVersion).set({
       timestamp: new Date().toISOString(),
       caller: process.env.USER,
