@@ -101,7 +101,6 @@ async function registerTsCompiler() {
         .then(() => true)
         .catch(() => false)
     : false;
-  console.log("tsConfigExists", tsConfigExists, absoluteTsConfigPath);
 
   if (absoluteTsConfigPath && !tsConfigExists) {
     console.warn(
@@ -112,7 +111,7 @@ async function registerTsCompiler() {
     ? JSON.parse(await fs.readFile(absoluteTsConfigPath, "utf-8"))
     : defaultTSConfig;
 
-  console.log("tsConfig", tsConfig);
+  console.debug("Using ts configuration:", tsConfig);
 
   register(tsConfig);
 }
