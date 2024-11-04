@@ -1,7 +1,12 @@
 {
-  "name": "firegration",
-  "version": "1.0.0",
+  "name": "@nanogiants/firegration",
+  "version": "0.0.1",
   "bin": "./dist/index.js",
+  "files": [
+    "dist",
+    "firegration.d.ts",
+    "package.json"
+  ],
   "types": "firegration.d.ts",
   "scripts": {
     "build": "rimraf dist && tsc"

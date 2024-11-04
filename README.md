@@ -4,8 +4,16 @@ Firegrations is a simple migration tool for Firestore. It allows you to define y
 
 ## Installation
 
+If you solely want to use the CLI, you don't need to install this package. You can use it directly from npx.
+
 ```sh
-npm install https://github.com/nanogiants/firegration.git
+npx firegration --migrations=./your-migrations-folder
+```
+
+Installation of this package is mainly for typing purposes.
+
+```sh
+npm install @nanogiants/firegration
 ```
 
 You also need Firebase Credentials to run the migrations. Simply set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable when running the migrations.
