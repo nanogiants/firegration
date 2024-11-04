@@ -10,19 +10,16 @@ admin.initializeApp();
 
 program.requiredOption("--migrations <path>", "Path to migrations folder");
 program.option("--databaseId <string>", "Id of firestore database to use");
+program.option("--tsconfig <path>", "Path to tsconfig file");
 
 program.parse();
 
-const { migrations, databaseId } = program.opts();
+const { migrations, databaseId, tsconfig: tsconfigPath } = program.opts();
 
 const MIGRATIONS_COLLECTION_NAME = "firegration";
 
 async function main() {
-  register({
-    compilerOptions: {
-      noImplicitAny: false,
-    },
-  });
+  await registerTsCompiler();
   let migrationsPath = migrations;
   if (!path.isAbsolute(migrations)) {
     migrationsPath = path.join(process.cwd(), migrations);
@@ -84,6 +81,41 @@ async function main() {
 main();
 
 // ------------------------------ //
+
+async function registerTsCompiler() {
+  const defaultTSConfig = {
+    compilerOptions: {
+      noImplicitAny: false,
+      target: "ESNext",
+      module: "ESNext",
+    },
+  };
+  const absoluteTsConfigPath = tsconfigPath
+    ? path.isAbsolute(tsconfigPath)
+      ? tsconfigPath
+      : path.join(process.cwd(), tsconfigPath)
+    : null;
+  const tsConfigExists = absoluteTsConfigPath
+    ? await fs
+        .access(absoluteTsConfigPath)
+        .then(() => true)
+        .catch(() => false)
+    : false;
+  console.log("tsConfigExists", tsConfigExists, absoluteTsConfigPath);
+
+  if (absoluteTsConfigPath && !tsConfigExists) {
+    console.warn(
+      `No tsconfig file found at ${absoluteTsConfigPath}. Using default configuration`
+    );
+  }
+  const tsConfig = tsConfigExists
+    ? JSON.parse(await fs.readFile(absoluteTsConfigPath, "utf-8"))
+    : defaultTSConfig;
+
+  console.log("tsConfig", tsConfig);
+
+  register(tsConfig);
+}
 
 function ensureValidMigrationFiles(files: string[]) {
   const migrationFileRegex = /^v\d+\.\d+\.\d+__.+\.ts$/;
