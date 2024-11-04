@@ -1,9 +1,7 @@
 {
   "name": "@nanogiants/firegration",
   "version": "0.0.3",
-  "bin": {
-    "firegrate": "./dist/index.js"
-  },
+  "bin": "./dist/index.js",
   "files": [
     "dist",
     "firegration.d.ts",

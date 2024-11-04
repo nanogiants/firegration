@@ -10,7 +10,7 @@ If you solely want to use the CLI, you don't need to install this package. You c
 npx firegration --migrations=./your-migrations-folder
 ```
 
-Installation of this package is mainly for typing purposes.
+Installation of this package is used for mainly for typing purposes.
 
 ```sh
 npm install @nanogiants/firegration
@@ -45,16 +45,17 @@ export async function migrate({ firestore }: MigrationParameters) {
 ### Parameters
 
 ```sh
-Usage: firegration [options]
+Usage: @nanogiants/firegration [options]
 
 Options:
   --migrations <path>    Path to migrations folder
   --databaseId <string>  Id of firestore database to use
+  --tsconfig <path>      Path to tsconfig file
   -h, --help             display help for command
 ```
 
 ### Run your migrations
 
 ```sh
-GOOGLE_APPLICATION_CREDENTIALS="service_account.json" npx firegration --migrations=./migrations --databaseId=development
+GOOGLE_APPLICATION_CREDENTIALS="service_account.json" npx @nanogiants/firegration --migrations=./migrations --databaseId=development --tsconfig=./tsconfig.json
 ```
