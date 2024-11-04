@@ -1,6 +1,6 @@
 {
   "name": "@nanogiants/firegration",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "bin": "./dist/index.js",
   "files": [
     "dist",
@@ -9,7 +9,8 @@
   ],
   "types": "firegration.d.ts",
   "scripts": {
-    "build": "rimraf dist && tsc"
+    "build": "rimraf dist && tsc",
+    "prepublish": "npm run build"
   },
   "author": "",
   "license": "ISC",
