@@ -7,13 +7,15 @@ import * as path from "path";
 import { register } from "ts-node";
 import { MigrationFile } from "./firegration";
 admin.initializeApp();
-
+import {version} from "./package.json";
 const MIGRATIONS_COLLECTION_NAME = "firegration";
 
 program.requiredOption("--migrations <path>", "Path to migrations folder");
 program.option("--migrationsCollection <string>", "Name of migrations collection", MIGRATIONS_COLLECTION_NAME);
 program.option("--databaseId <string>", "Id of firestore database to use");
 program.option("--tsconfig <path>", "Path to tsconfig file");
+
+program.version(version);
 
 program.parse();
 

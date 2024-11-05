@@ -28,7 +28,7 @@ You can either export a default anonymous function or export a named function `m
 
 ```ts
 // migrations/v1.0.0__migration1.ts
-import { MigrationParameters } from "firegration";
+import { MigrationParameters } from "@nanogiants/firegration";
 export default async function ({ firestore }: MigrationParameters) {
   // Your migration code here
 }
@@ -36,7 +36,7 @@ export default async function ({ firestore }: MigrationParameters) {
 
 ```ts
 // migrations/v1.0.1__migration2.ts
-import { MigrationParameters } from "firegration";
+import { MigrationParameters } from "@nanogiants/firegration";
 export async function migrate({ firestore }: MigrationParameters) {
   // Your migration code here
 }
@@ -49,12 +49,11 @@ Usage: @nanogiants/firegration [options]
 
 Options:
   --migrations <path>              Path to migrations folder
-  --migrationsCollection <string>  Name of migrations collection (default:
-                                   "firegration")
+  --migrationsCollection <string>  Name of migrations collection (default: "firegration")
   --databaseId <string>            Id of firestore database to use
   --tsconfig <path>                Path to tsconfig file
-  -h, --help                       display help for command
-```
+  -V, --version                    output the version number
+  -h, --help                       display help for command```
 
 ### Run your migrations
 
