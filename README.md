@@ -7,7 +7,7 @@ Firegrations is a simple migration tool for Firestore. It allows you to define y
 If you solely want to use the CLI, you don't need to install this package. You can use it directly from npx.
 
 ```sh
-npx firegration --migrations=./your-migrations-folder
+npx @nanogiants/firegration --migrations=./your-migrations-folder
 ```
 
 Installation of this package is used for mainly for typing purposes.
@@ -48,10 +48,12 @@ export async function migrate({ firestore }: MigrationParameters) {
 Usage: @nanogiants/firegration [options]
 
 Options:
-  --migrations <path>    Path to migrations folder
-  --databaseId <string>  Id of firestore database to use
-  --tsconfig <path>      Path to tsconfig file
-  -h, --help             display help for command
+  --migrations <path>              Path to migrations folder
+  --migrationsCollection <string>  Name of migrations collection (default:
+                                   "firegration")
+  --databaseId <string>            Id of firestore database to use
+  --tsconfig <path>                Path to tsconfig file
+  -h, --help                       display help for command
 ```
 
 ### Run your migrations

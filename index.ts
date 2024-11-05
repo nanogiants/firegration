@@ -8,15 +8,17 @@ import { register } from "ts-node";
 import { MigrationFile } from "./firegration";
 admin.initializeApp();
 
+const MIGRATIONS_COLLECTION_NAME = "firegration";
+
 program.requiredOption("--migrations <path>", "Path to migrations folder");
+program.option("--migrationsCollection <string>", "Name of migrations collection", MIGRATIONS_COLLECTION_NAME);
 program.option("--databaseId <string>", "Id of firestore database to use");
 program.option("--tsconfig <path>", "Path to tsconfig file");
 
 program.parse();
 
-const { migrations, databaseId, tsconfig: tsconfigPath } = program.opts();
+const { migrations, databaseId, tsconfig: tsconfigPath, migrationsCollection: migrationsCollectionName } = program.opts();
 
-const MIGRATIONS_COLLECTION_NAME = "firegration";
 
 async function main() {
   await registerTsCompiler();
@@ -35,7 +37,7 @@ async function main() {
     return;
   }
   const firestore = getFirestore(databaseId);
-  const migrationsCollection = firestore.collection(MIGRATIONS_COLLECTION_NAME);
+  const migrationsCollection = firestore.collection(migrationsCollectionName);
   const versions = await migrationsCollection.listDocuments();
   let currentVersion = null;
   if (versions.length > 0) {
