@@ -7,35 +7,60 @@ import * as path from "path";
 import { register } from "ts-node";
 import { MigrationFile } from "./firegration";
 admin.initializeApp();
-import {version} from "./package.json";
+import { version } from "./package.json";
+import winston from "winston";
+
+const logger = winston.createLogger({
+  transports: [new winston.transports.Console({})],
+  format: winston.format.combine(
+    winston.format.label({ label: "Firegration" }),
+    winston.format.cli(),
+    winston.format.colorize()
+  ),
+  level: "info",
+});
+
 const MIGRATIONS_COLLECTION_NAME = "firegration";
 
 program.requiredOption("--migrations <path>", "Path to migrations folder");
-program.option("--migrationsCollection <string>", "Name of migrations collection", MIGRATIONS_COLLECTION_NAME);
+program.option(
+  "--migrationsCollection <string>",
+  "Name of migrations collection",
+  MIGRATIONS_COLLECTION_NAME
+);
 program.option("--databaseId <string>", "Id of firestore database to use");
 program.option("--tsconfig <path>", "Path to tsconfig file");
+program.option("--verbose", "Enable verbose logging", false);
 
 program.version(version);
 
 program.parse();
 
-const { migrations, databaseId, tsconfig: tsconfigPath, migrationsCollection: migrationsCollectionName } = program.opts();
-
+const {
+  migrations,
+  databaseId,
+  tsconfig: tsconfigPath,
+  migrationsCollection: migrationsCollectionName,
+  verbose,
+} = program.opts();
 
 async function main() {
+  if (verbose) {
+    logger.level = "debug";
+  }
   await registerTsCompiler();
   let migrationsPath = migrations;
   if (!path.isAbsolute(migrations)) {
     migrationsPath = path.join(process.cwd(), migrations);
   }
-  console.info(`Migrations path: ${migrationsPath}`);
+  logger.debug(`Migrations path: ${migrationsPath}`);
 
   const files = await fs.readdir(migrationsPath);
   ensureValidMigrationFiles(files);
 
   const sortedFilesByVersion = getSortedMigrationFilesByVersion(files);
   if (sortedFilesByVersion.length === 0) {
-    console.info("No migrations to run");
+    logger.info("No migrations to run");
     return;
   }
   const firestore = getFirestore(databaseId);
@@ -52,19 +77,19 @@ async function main() {
     currentVersion = latestMigration.id;
   }
 
-  console.info(`Current Firestore Version: ${currentVersion}`);
+  logger.info(`Current Firestore Version: ${currentVersion}`);
 
   for (const file of sortedFilesByVersion) {
     const migrationVersion = getVersionFromMigrationFile(file);
     if (currentVersion && migrationVersion <= currentVersion) {
-      console.info(
+      logger.debug(
         `Skipping migration because it has already been run: ${file}`
       );
       continue;
     }
 
     const migrationFilePath = `${migrationsPath}/${file}`;
-    console.info(`Running migration: ${migrationFilePath}`);
+    logger.info(`Running migration: ${migrationFilePath}`);
 
     const migrationFile: MigrationFile = await import(migrationFilePath);
 
@@ -91,7 +116,7 @@ async function registerTsCompiler() {
     compilerOptions: {
       noImplicitAny: false,
       target: "ESNext",
-      module: "ESNext",
+      module: "CommonJS",
     },
   };
   const absoluteTsConfigPath = tsconfigPath
@@ -107,7 +132,7 @@ async function registerTsCompiler() {
     : false;
 
   if (absoluteTsConfigPath && !tsConfigExists) {
-    console.warn(
+    logger.warn(
       `No tsconfig file found at ${absoluteTsConfigPath}. Using default configuration`
     );
   }
@@ -115,7 +140,7 @@ async function registerTsCompiler() {
     ? JSON.parse(await fs.readFile(absoluteTsConfigPath, "utf-8"))
     : defaultTSConfig;
 
-  console.debug("Using ts configuration:", tsConfig);
+  logger.debug(`Using ts configuration: ${JSON.stringify(tsConfig)}`);
 
   register(tsConfig);
 }
