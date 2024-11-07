@@ -1,6 +1,7 @@
 {
   "name": "@nanogiants/firegration",
   "version": "0.0.6",
+  "description": "A CLI tool to migrate Firestore data using typed migrations",
   "bin": "./dist/cli.js",
   "files": [
     "dist",
@@ -12,9 +13,18 @@
     "build": "rimraf dist && tsc",
     "prepublish": "npm run build"
   },
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "firebase",
+    "firestore",
+    "migration",
+    "cli"
+  ],
+  "author": "NanoGiants GmbH",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nanogiants/firegration.git"
+  },
   "dependencies": {
     "commander": "^12.1.0",
     "firebase-admin": "^12.4.0",
