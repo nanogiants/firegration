@@ -1,54 +1,30 @@
-#!/usr/bin/env node
-import { program } from "commander";
-import * as fs from "fs/promises";
 import * as admin from "firebase-admin";
-import { getFirestore, Firestore } from "firebase-admin/firestore";
+import { getFirestore } from "firebase-admin/firestore";
+import * as fs from "fs/promises";
 import * as path from "path";
-import { register } from "ts-node";
-import { MigrationFile } from "./firegration";
+import { MigrationFile, RunMigrationOptions } from "./types";
+import {
+  ensureValidMigrationFiles,
+  getSortedMigrationFilesByVersion,
+  getVersionFromMigrationFile,
+  logger,
+  MIGRATIONS_COLLECTION_NAME,
+  registerTsCompiler,
+} from "./utils";
+
 admin.initializeApp();
-import { version } from "./package.json";
-import winston from "winston";
 
-const logger = winston.createLogger({
-  transports: [new winston.transports.Console({})],
-  format: winston.format.combine(
-    winston.format.label({ label: "Firegration" }),
-    winston.format.cli(),
-    winston.format.colorize()
-  ),
-  level: "info",
-});
-
-const MIGRATIONS_COLLECTION_NAME = "firegration";
-
-program.requiredOption("--migrations <path>", "Path to migrations folder");
-program.option(
-  "--migrationsCollection <string>",
-  "Name of migrations collection",
-  MIGRATIONS_COLLECTION_NAME
-);
-program.option("--databaseId <string>", "Id of firestore database to use");
-program.option("--tsconfig <path>", "Path to tsconfig file");
-program.option("--verbose", "Enable verbose logging", false);
-
-program.version(version);
-
-program.parse();
-
-const {
+export async function runMigrations({
   migrations,
   databaseId,
-  tsconfig: tsconfigPath,
-  migrationsCollection: migrationsCollectionName,
+  tsconfig,
+  migrationsCollectionName = MIGRATIONS_COLLECTION_NAME,
   verbose,
-} = program.opts();
-
-async function main() {
+}: RunMigrationOptions) {
   if (verbose) {
     logger.level = "debug";
   }
-  await registerTsCompiler();
+  await registerTsCompiler(tsconfig);
   let migrationsPath = migrations;
   if (!path.isAbsolute(migrations)) {
     migrationsPath = path.join(process.cwd(), migrations);
@@ -63,7 +39,7 @@ async function main() {
     logger.info("No migrations to run");
     return;
   }
-  const firestore = getFirestore(databaseId);
+  const firestore = databaseId ? getFirestore(databaseId) : getFirestore();
   const migrationsCollection = firestore.collection(migrationsCollectionName);
   const versions = await migrationsCollection.listDocuments();
   let currentVersion = null;
@@ -107,75 +83,4 @@ async function main() {
   }
 }
 
-main();
-
-// ------------------------------ //
-
-async function registerTsCompiler() {
-  const defaultTSConfig = {
-    compilerOptions: {
-      noImplicitAny: false,
-      target: "ESNext",
-      module: "CommonJS",
-    },
-  };
-  const absoluteTsConfigPath = tsconfigPath
-    ? path.isAbsolute(tsconfigPath)
-      ? tsconfigPath
-      : path.join(process.cwd(), tsconfigPath)
-    : null;
-  const tsConfigExists = absoluteTsConfigPath
-    ? await fs
-        .access(absoluteTsConfigPath)
-        .then(() => true)
-        .catch(() => false)
-    : false;
-
-  if (absoluteTsConfigPath && !tsConfigExists) {
-    logger.warn(
-      `No tsconfig file found at ${absoluteTsConfigPath}. Using default configuration`
-    );
-  }
-  const tsConfig = tsConfigExists
-    ? JSON.parse(await fs.readFile(absoluteTsConfigPath, "utf-8"))
-    : defaultTSConfig;
-
-  logger.debug(`Using ts configuration: ${JSON.stringify(tsConfig)}`);
-
-  register(tsConfig);
-}
-
-function ensureValidMigrationFiles(files: string[]) {
-  const migrationFileRegex = /^v\d+\.\d+\.\d+__.+\.ts$/;
-  const invalidFiles = files.filter((file) => !migrationFileRegex.test(file));
-  if (invalidFiles.length > 0) {
-    throw new Error(
-      `Invalid migration files found: ${invalidFiles.join(", ")}`
-    );
-  }
-
-  const versions = files.map(getVersionFromMigrationFile);
-
-  const duplicateVersions = versions.filter(
-    (version, index) => versions.indexOf(version) !== index
-  );
-
-  if (duplicateVersions.length > 0) {
-    throw new Error(
-      `Duplicate versions found: ${duplicateVersions.join(", ")}`
-    );
-  }
-}
-
-function getVersionFromMigrationFile(file: string) {
-  return file.split("__")[0];
-}
-
-function getSortedMigrationFilesByVersion(files: string[]) {
-  return files.sort((a, b) => {
-    const aVersion = getVersionFromMigrationFile(a);
-    const bVersion = getVersionFromMigrationFile(b);
-
-    return aVersion.localeCompare(bVersion);
-  });
-}
+export * from "./types";

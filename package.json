@@ -1,13 +1,13 @@
 {
   "name": "@nanogiants/firegration",
   "version": "0.0.6",
-  "bin": "./dist/index.js",
+  "bin": "./dist/cli.js",
   "files": [
     "dist",
-    "firegration.d.ts",
     "package.json"
   ],
-  "types": "firegration.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
   "scripts": {
     "build": "rimraf dist && tsc",
     "prepublish": "npm run build"
