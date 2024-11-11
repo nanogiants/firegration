@@ -1,0 +1,11 @@
+{
+  "name": "@nanogiants/firegration-examples-basic",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@nanogiants/firegration": "file:../.."
+  }
+}

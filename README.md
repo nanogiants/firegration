@@ -82,3 +82,7 @@ Options:
   -V, --version                    output the version number
   -h, --help                       display help for command
 ```
+
+## Examples
+
+You can find examples of how to use Firegration in the [examples](./examples) folder.
